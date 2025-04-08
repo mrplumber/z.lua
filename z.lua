@@ -1874,7 +1874,7 @@ function cd_breadcrumbs(pwd, interactive)
 	if interactive == 2 then
 		tmpname = os.tmpname()
 		if windows and string.match(tmpname, "^\\s%w+%.$") then
-			tmpname = tmpname():gsub('\\', ''):gsub('%.', '')
+			tmpname = tmpname:gsub('\\', ''):gsub('%.', '')
 			tmpname = os.environ('TMP', '') .. '\\zlua_' .. tmpname .. '.txt'
 		end
 		fp = io.open(tmpname, 'w')
