@@ -1668,16 +1668,18 @@ function z_cd(patterns)
 		local flag = os.environ('_ZL_FZF_FLAG', '')
 		flag = (flag == '' or flag == nil) and '+s -e' or flag
 		cmd = ((fzf == '') and 'fzf' or fzf)  .. ' ' .. cmd .. ' ' .. flag
+		tmpname = os.tmpname()
 		if not windows then
-			tmpname = os.tmpname()
 			local height = os.environ('_ZL_FZF_HEIGHT', '35%')
 			if height ~= nil and height ~= '' and height ~= '0' then
 				cmd = cmd .. ' --height ' .. height
 			end
 			cmd = cmd .. ' < "' .. tmpname .. '"'
 		else
-			tmpname = os.tmpname():gsub('\\', ''):gsub('%.', '')
-			tmpname = os.environ('TMP', '') .. '\\zlua_' .. tmpname .. '.txt'
+			if string.match(tmpname, "^\\s%w+%.$") then
+				tmpname = tmpname:gsub('\\', ''):gsub('%.', '')
+				tmpname = os.environ('TMP', '') .. '\\zlua_' .. tmpname .. '.txt'
+			end
 			cmd = 'type "' .. tmpname .. '" | ' .. cmd
 		end
 		PRINT_MODE = tmpname
@@ -1870,10 +1872,9 @@ function cd_breadcrumbs(pwd, interactive)
 	local tmpname = '/tmp/zlua.txt'
 	local fp = io.stderr
 	if interactive == 2 then
-		if not windows then
-			tmpname = os.tmpname()
-		else
-			tmpname = os.tmpname():gsub('\\', ''):gsub('%.', '')
+		tmpname = os.tmpname()
+		if windows and string.match(tmpname, "^\\s%w+%.$") then
+			tmpname = tmpname():gsub('\\', ''):gsub('%.', '')
 			tmpname = os.environ('TMP', '') .. '\\zlua_' .. tmpname .. '.txt'
 		end
 		fp = io.open(tmpname, 'w')
